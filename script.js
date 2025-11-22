@@ -1,3 +1,5 @@
+const fetch = require("node-fetch");
+
 async function trendingStocks(n) {
   if (n === 0) return [];
 
@@ -6,11 +8,10 @@ async function trendingStocks(n) {
     fetch("https://api.frontendexpert.io/api/fe/stock-market-caps"),
   ]);
 
-  const symbols = await symbolsRes.json();        
-  const marketCaps = await marketCapsRes.json();  
+  const symbols = await symbolsRes.json();
+  const marketCaps = await marketCapsRes.json();
 
   marketCaps.sort((a, b) => b["market-cap"] - a["market-cap"]);
-
   const topN = marketCaps.slice(0, n);
   const topSymbols = topN.map(s => s.symbol);
 
@@ -19,22 +20,21 @@ async function trendingStocks(n) {
       JSON.stringify(topSymbols)
     )}`
   );
-
   const prices = await pricesRes.json();
 
-  const nameMap  = new Map(symbols.map(s => [s.symbol, s.name]));
+  const nameMap = new Map(symbols.map(s => [s.symbol, s.name]));
   const priceMap = new Map(prices.map(p => [p.symbol, p]));
-  const capMap   = new Map(topN.map(s => [s.symbol, s["market-cap"]]));
+  const capMap = new Map(topN.map(s => [s.symbol, s["market-cap"]]));
 
   return topSymbols.map(symbol => {
     const p = priceMap.get(symbol);
     return {
-      name: nameMap.get(symbol),
       symbol,
+      name: nameMap.get(symbol),
       price: p.price,
       "52-week-high": p["52-week-high"],
       "52-week-low": p["52-week-low"],
-      "market-cap": capMap.get(symbol),
+      "market-cap": capMap.get(symbol],
     };
   });
 }
